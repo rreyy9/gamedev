@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8570c811285ce0c45939dc80a94bf2cd, type: 3}
+  m_Name: ChestLoot
+  m_EditorClassIdentifier: Assembly-CSharp::LootTable
+  sourceName: Loot
+  entries:
+  - item: {fileID: 11400000, guid: fd37101fe5879bc449dcb3db18da4147, type: 2}
+    minQuantity: 1
+    maxQuantity: 0
+    dropChance: 1
+  - item: {fileID: 11400000, guid: f3390529cffe20f429d68bc3e1fa0ba5, type: 2}
+    minQuantity: 1
+    maxQuantity: 0
+    dropChance: 1
+  guaranteedDrops: 1
