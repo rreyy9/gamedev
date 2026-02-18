@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 /// <summary>
-/// EnemyController — Phase 4
+/// EnemyController — Phase 5 (Wander State Added)
 /// 
 /// The MonoBehaviour that owns the state machine and runs the vision cone logic.
 /// Attach this to your enemy prefab root. It drives the Animator via SetAnimatorSpeed()
@@ -11,11 +11,17 @@ using UnityEngine.AI;
 /// SETUP CHECKLIST:
 ///   ✅ Attach EnemyController to enemy root GameObject
 ///   ✅ Assign the Animator reference in the Inspector
-///   ✅ NavMeshAgent is on the same root GameObject (required for Chase/Patrol)
+///   ✅ NavMeshAgent is on the same root GameObject (required for Chase/Patrol/Wander)
 ///   ✅ Tag the Player GameObject as "Player"
 ///   ✅ Tag this Enemy as "Enemy" (NOT "Player")
 ///   ✅ Bake a NavMesh on your terrain (AI Navigation package)
 ///   ✅ (Optional) Assign Waypoints to enable Patrol behaviour
+///   ✅ (Optional) Assign WanderCentre + WanderRadius to enable free-roam Wander behaviour
+/// 
+/// STATE SELECTION PRIORITY (evaluated in Start):
+///   1. Waypoints assigned  → EnemyPatrolState
+///   2. WanderCentre set    → EnemyWanderState
+///   3. Neither             → EnemyIdleState
 /// 
 /// ANIMATOR PARAMETERS REQUIRED:
 ///   Speed (Float)       — 0 = Idle, >0 = moving (matches existing player convention)
@@ -24,8 +30,11 @@ using UnityEngine.AI;
 /// PATROL SETUP:
 ///   Create empty GameObjects in the scene as waypoint markers.
 ///   Assign them to the Waypoints array in the Inspector.
-///   Enemy will start in Patrol state instead of Idle when waypoints are present.
-///   Leave Waypoints empty for a stationary enemy that only reacts when the player enters its cone.
+/// 
+/// WANDER SETUP:
+///   Create an empty GameObject at the centre of the roam territory → assign to WanderCentre.
+///   Set WanderRadius to cover the desired area.
+///   Leave Waypoints empty — wander will be chosen automatically.
 /// </summary>
 public class EnemyController : MonoBehaviour
 {
@@ -60,15 +69,32 @@ public class EnemyController : MonoBehaviour
     public float AttackRange = 1.5f;
 
     [Header("Patrol")]
-    [Tooltip("Waypoints the enemy walks between. Leave empty for a stationary enemy.")]
+    [Tooltip("Waypoints the enemy walks between. Leave empty for a stationary or wandering enemy.")]
     public Transform[] Waypoints;
 
-    [Tooltip("How fast the enemy moves while patrolling (metres/sec). Clamped between walk and chase speed.")]
+    [Tooltip("How fast the enemy moves while patrolling or wandering (metres/sec).")]
     public float PatrolSpeed = 1.75f;
 
     [Tooltip("How long the enemy waits at each waypoint before moving to the next (seconds).")]
     [Range(0f, 10f)]
     public float WaypointPauseDuration = 1f;
+
+    [Header("Wander")]
+    [Tooltip("Centre of the wander territory. If null and no waypoints are set, enemy stands idle. " +
+             "Falls back to spawn position at runtime if left unassigned but EnemyWanderState is forced via code.")]
+    public Transform WanderCentre;
+
+    [Tooltip("Radius of the wander territory in metres.")]
+    [Range(2f, 50f)]
+    public float WanderRadius = 10f;
+
+    [Tooltip("Minimum seconds the enemy idles at each wander destination.")]
+    [Range(0f, 10f)]
+    public float WanderPauseMin = 1f;
+
+    [Tooltip("Maximum seconds the enemy idles at each wander destination.")]
+    [Range(0f, 10f)]
+    public float WanderPauseMax = 4f;
 
     [Header("References")]
     [Tooltip("Animator on the character model child. Drives Speed and IsAttacking parameters.")]
@@ -97,6 +123,16 @@ public class EnemyController : MonoBehaviour
     private static readonly int IsAttackingHash = Animator.StringToHash("IsAttacking");
 
     // ─────────────────────────────────────────────────
+    //  Arrival threshold used by patrol and wander states
+    // ─────────────────────────────────────────────────
+
+    /// <summary>
+    /// How close the agent must be to its destination before it is considered "arrived".
+    /// Matches NavMeshAgent.stoppingDistance so states share one source of truth.
+    /// </summary>
+    public float ArrivalThreshold => AttackRange * 0.9f;
+
+    // ─────────────────────────────────────────────────
     //  Unity Lifecycle
     // ─────────────────────────────────────────────────
 
@@ -105,11 +141,14 @@ public class EnemyController : MonoBehaviour
         // Walk threshold maps to ~2f, run to ChaseSpeed — keep patrol inside that range
         const float walkSpeed = 2f;
         PatrolSpeed = Mathf.Clamp(PatrolSpeed, walkSpeed, ChaseSpeed);
+
+        // Ensure pause range is valid
+        WanderPauseMax = Mathf.Max(WanderPauseMin, WanderPauseMax);
     }
 
     private void Awake()
     {
-        // Record spawn position for leash calculations
+        // Record spawn position for leash and wander fallback calculations
         _spawnPosition = transform.position;
 
         // Cache NavMeshAgent
@@ -152,9 +191,11 @@ public class EnemyController : MonoBehaviour
 
     private void Start()
     {
-        // Enter Patrol if waypoints are assigned, otherwise stand idle
+        // Priority: Patrol (waypoints) > Wander (centre point) > Idle (stationary)
         if (HasWaypoints())
             ChangeState(new EnemyPatrolState(this));
+        else if (HasWanderArea())
+            ChangeState(new EnemyWanderState(this));
         else
             ChangeState(new EnemyIdleState(this));
     }
@@ -173,6 +214,9 @@ public class EnemyController : MonoBehaviour
 
     public void ChangeState(EnemyState newState)
     {
+        if (EnableDebugLogs)
+            Debug.Log($"[{name}] {(_currentState != null ? _currentState.GetType().Name : "None")} → {newState.GetType().Name}");
+
         _currentState?.Exit();
         _currentState = newState;
         _currentState.Enter();
@@ -181,6 +225,16 @@ public class EnemyController : MonoBehaviour
     // ─────────────────────────────────────────────────
     //  Detection Helpers
     // ─────────────────────────────────────────────────
+
+    /// <summary>
+    /// Returns true when the player is inside the vision cone (distance + angle)
+    /// AND detection is not on cooldown. Use this in states instead of
+    /// IsPlayerInVisionCone() directly so the cooldown is always respected.
+    /// </summary>
+    public bool CanSeePlayer()
+    {
+        return CanDetectPlayer() && IsPlayerInVisionCone();
+    }
 
     /// <summary>Returns true when the player is inside the vision cone (distance + angle).</summary>
     public bool IsPlayerInVisionCone()
@@ -238,6 +292,9 @@ public class EnemyController : MonoBehaviour
         return Waypoints != null && Waypoints.Length > 0;
     }
 
+    /// <summary>Returns true when a wander territory centre has been defined.</summary>
+    public bool HasWanderArea() => WanderCentre != null;
+
     // ─────────────────────────────────────────────────
     //  Public Properties
     // ─────────────────────────────────────────────────
@@ -271,13 +328,30 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Rotates the enemy to face its current NavMeshAgent velocity direction.
+    /// Called by moving states (Chase, Patrol, Wander) each tick.
+    /// </summary>
+    public void RotateToVelocity()
+    {
+        if (_agent == null) return;
+
+        Vector3 velocity = new Vector3(_agent.velocity.x, 0f, _agent.velocity.z);
+        if (velocity.sqrMagnitude < 0.01f) return;
+
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            Quaternion.LookRotation(velocity),
+            Time.deltaTime * 10f);
+    }
+
     // ─────────────────────────────────────────────────
     //  Scene Gizmos
     // ─────────────────────────────────────────────────
 
     private void OnDrawGizmosSelected()
     {
-        // Vision cone colour by disposition
+        // ── Vision cone — colour by disposition ─────────────────────────────
         switch (Disposition)
         {
             case EnemyDisposition.Hostile: Gizmos.color = new Color(1f, 0f, 0f, 0.35f); break;
@@ -296,16 +370,16 @@ public class EnemyController : MonoBehaviour
         Color solid = Gizmos.color; solid.a = 1f; Gizmos.color = solid;
         Gizmos.DrawRay(transform.position, transform.forward * DetectionRadius);
 
-        // Attack range — orange
+        // ── Attack range — orange ────────────────────────────────────────────
         Gizmos.color = new Color(1f, 0.5f, 0f, 0.6f);
         Gizmos.DrawWireSphere(transform.position, AttackRange);
 
-        // Leash range — blue
+        // ── Leash range — blue ───────────────────────────────────────────────
         Gizmos.color = new Color(0.2f, 0.6f, 1f, 0.25f);
         Vector3 leashOrigin = Application.isPlaying ? _spawnPosition : transform.position;
         Gizmos.DrawWireSphere(leashOrigin, LeashDistance);
 
-        // Patrol waypoints — green lines connecting each point
+        // ── Patrol waypoints — green lines ───────────────────────────────────
         if (Waypoints != null && Waypoints.Length > 1)
         {
             Gizmos.color = new Color(0f, 1f, 0.4f, 0.8f);
@@ -317,6 +391,50 @@ public class EnemyController : MonoBehaviour
                 Gizmos.DrawLine(Waypoints[i].position, Waypoints[next].position);
                 Gizmos.DrawWireSphere(Waypoints[i].position, 0.2f);
             }
+        }
+
+        // ── Wander territory — cyan disc ─────────────────────────────────────
+        if (WanderCentre != null)
+        {
+            DrawWanderDisc(WanderCentre.position, WanderRadius);
+
+#if UNITY_EDITOR
+            UnityEditor.Handles.color = new Color(0f, 0.8f, 1f, 0.9f);
+            UnityEditor.Handles.Label(
+                WanderCentre.position + Vector3.up * 0.4f,
+                $"Wander  r = {WanderRadius:F1} m");
+#endif
+        }
+    }
+
+    /// <summary>
+    /// Draws a flat wire disc on the XZ plane for the wander territory visualisation.
+    /// </summary>
+    private void DrawWanderDisc(Vector3 centre, float radius)
+    {
+        const int Segments = 48;
+        float step = 360f / Segments;
+
+        // Semi-transparent fill (spoke pattern)
+        Gizmos.color = new Color(0f, 0.8f, 1f, 0.08f);
+        Vector3 prev = centre + new Vector3(radius, 0f, 0f);
+        for (int i = 1; i <= Segments; i++)
+        {
+            float rad = i * step * Mathf.Deg2Rad;
+            Vector3 next = centre + new Vector3(Mathf.Cos(rad) * radius, 0f, Mathf.Sin(rad) * radius);
+            Gizmos.DrawLine(centre, next);   // fills like a wheel
+            prev = next;
+        }
+
+        // Solid outline
+        Gizmos.color = new Color(0f, 0.8f, 1f, 0.85f);
+        prev = centre + new Vector3(radius, 0f, 0f);
+        for (int i = 1; i <= Segments; i++)
+        {
+            float rad = i * step * Mathf.Deg2Rad;
+            Vector3 next = centre + new Vector3(Mathf.Cos(rad) * radius, 0f, Mathf.Sin(rad) * radius);
+            Gizmos.DrawLine(prev, next);
+            prev = next;
         }
     }
 }
