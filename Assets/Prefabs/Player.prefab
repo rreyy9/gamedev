@@ -12,8 +12,10 @@ GameObject:
   - component: {fileID: 1031024610556412105}
   - component: {fileID: 6320872096514386563}
   - component: {fileID: 6244167984076660583}
-  - component: {fileID: 5049256043970530029}
   - component: {fileID: 6627886230138551766}
+  - component: {fileID: 5049256043970530029}
+  - component: {fileID: 7697773631025512542}
+  - component: {fileID: 80404524807425102}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -97,6 +99,23 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fd37101fe5879bc449dcb3db18da4147, type: 2}
   - {fileID: 11400000, guid: f3390529cffe20f429d68bc3e1fa0ba5, type: 2}
   addQuantity: 5
+--- !u!114 &6627886230138551766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3001576765261931137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae2b40a6f63de9340a719e9f4742b4ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LootDebugger
+  corpseLootTable: {fileID: 0}
+  chestLootTable: {fileID: 11400000, guid: b68fc437b6ba30548a3f4fad945d7cd0, type: 2}
+  herbLootTable: {fileID: 0}
+  miningLootTable: {fileID: 0}
+  spawnDistance: 2
 --- !u!114 &5049256043970530029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -115,7 +134,7 @@ MonoBehaviour:
     m_Bits: 64
   scanInterval: 0.1
   showGizmo: 1
---- !u!114 &6627886230138551766
+--- !u!114 &7697773631025512542
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -124,14 +143,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 3001576765261931137}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae2b40a6f63de9340a719e9f4742b4ce, type: 3}
+  m_Script: {fileID: 11500000, guid: a323d1cde7356404486638b1a83b11b3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LootDebugger
-  corpseLootTable: {fileID: 0}
-  chestLootTable: {fileID: 11400000, guid: b68fc437b6ba30548a3f4fad945d7cd0, type: 2}
-  herbLootTable: {fileID: 0}
-  miningLootTable: {fileID: 0}
-  spawnDistance: 2
+  m_EditorClassIdentifier: Assembly-CSharp::HealthComponent
+  maxHealth: 100
+  startingHealth: 100
+  isInvincible: 0
+  enableDebugLogs: 1
+--- !u!114 &80404524807425102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3001576765261931137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31ee8f1433e493d469875c13a2c5a190, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  _health: {fileID: 0}
+  _movement: {fileID: 0}
+  _animator: {fileID: 0}
+  respawnDelay: 5
+  respawnPoint: {fileID: 0}
+  enableDebugLogs: 0
 --- !u!1001 &3626239732301797099
 PrefabInstance:
   m_ObjectHideFlags: 0
