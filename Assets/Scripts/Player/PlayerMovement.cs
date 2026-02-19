@@ -28,6 +28,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 moveDirection;
     private float currentSpeed;
     private float velocityY = 0f;
+    private bool _movementEnabled = true;
 
     // Animation parameter IDs (cached for performance)
     private int speedHash;
@@ -97,6 +98,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMovement()
     {
+        if (!_movementEnabled) return;
+
         // Store position before movement for debugging
         Vector3 positionBefore = transform.position;
 
@@ -212,5 +215,18 @@ public class PlayerMovement : MonoBehaviour
     {
         walkSpeed = walk;
         runSpeed = run;
+    }
+
+    /// <summary>
+    /// Enable or disable player movement input.
+    /// Called by PlayerHealth when the player dies or respawns.
+    /// </summary>
+    public void SetMovementEnabled(bool enabled)
+    {
+        _movementEnabled = enabled;
+
+        // Zero out input so the character doesn't slide into death position
+        if (!enabled)
+            moveInput = Vector2.zero;
     }
 }

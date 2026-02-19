@@ -36,11 +36,20 @@ using UnityEngine.AI;
 ///   Set WanderRadius to cover the desired area.
 ///   Leave Waypoints empty — wander will be chosen automatically.
 /// </summary>
+/// 
+
+[RequireComponent(typeof(HealthComponent))]
+
 public class EnemyController : MonoBehaviour
 {
     // ─────────────────────────────────────────────────
     //  Inspector Fields
     // ─────────────────────────────────────────────────
+
+    [Header("Combat")]
+    [Tooltip("Health Component — auto-found on this GameObject.")]
+    [SerializeField] private HealthComponent _health;
+    public HealthComponent Health => _health;
 
     [Header("Disposition")]
     [Tooltip("Controls how this enemy reacts when the player is detected.")]
@@ -146,6 +155,25 @@ public class EnemyController : MonoBehaviour
         WanderPauseMax = Mathf.Max(WanderPauseMin, WanderPauseMax);
     }
 
+    private void OnEnable()
+    {
+        if (_health != null)
+            _health.OnDied += OnDeath;
+    }
+
+    private void OnDisable()
+    {
+        if (_health != null)
+            _health.OnDied -= OnDeath;
+    }
+
+    private void OnDeath(UnityEngine.GameObject source)
+    {
+        // Cancel any detection cooldown and transition to Dead state
+        _detectionCooldownTimer = 0f;
+        ChangeState(new EnemyDeadState(this));
+    }
+
     private void Awake()
     {
         // Record spawn position for leash and wander fallback calculations
@@ -187,6 +215,13 @@ public class EnemyController : MonoBehaviour
 
         if (EnemyAnimator == null)
             Debug.LogWarning($"[{name}] EnemyController: EnemyAnimator not assigned in Inspector.", this);
+
+        // ── Health ────────────────────────────────────────────────────────────────
+        if (_health == null)
+            _health = GetComponent<HealthComponent>();
+
+        if (_health == null)
+            Debug.LogError($"[{name}] EnemyController: No HealthComponent found!", this);
     }
 
     private void Start()
@@ -343,6 +378,15 @@ public class EnemyController : MonoBehaviour
             transform.rotation,
             Quaternion.LookRotation(velocity),
             Time.deltaTime * 10f);
+    }
+
+    /// <summary>
+    /// Convenience method — damage this enemy. Called by the attack system.
+    /// Delegates to HealthComponent.TakeDamage().
+    /// </summary>
+    public void TakeDamage(float amount, UnityEngine.GameObject source = null)
+    {
+        _health?.TakeDamage(amount, source);
     }
 
     // ─────────────────────────────────────────────────
