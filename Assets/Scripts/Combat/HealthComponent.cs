@@ -77,7 +77,7 @@ public class HealthComponent : MonoBehaviour, IHealthSystem
     public float CurrentHealth => _currentHealth;
     public bool IsDead => _isDead;
 
-    /// <summary>Normalised health 0–1. Useful for UI sliders.</summary>
+    /// <summary>Normalised health 0–1. Useful for UI fill images.</summary>
     public float HealthPercent => maxHealth > 0f ? _currentHealth / maxHealth : 0f;
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -156,6 +156,19 @@ public class HealthComponent : MonoBehaviour, IHealthSystem
 
         OnRevived?.Invoke();
         OnHealthChanged?.Invoke(_currentHealth, maxHealth);
+    }
+
+    /// <summary>
+    /// Sets health directly without firing OnHealthChanged or OnDamaged.
+    /// Used for silent restores such as the leash reset in EnemyHealthBarUI,
+    /// where broadcasting the change would cause the nameplate to re-appear
+    /// while it is fading out.
+    /// </summary>
+    public void SetHealthSilent(float value)
+    {
+        // Write directly to the backing field — CurrentHealth is a read-only
+        // property so assigning to it would cause a compile error.
+        _currentHealth = Mathf.Clamp(value, 0f, maxHealth);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
