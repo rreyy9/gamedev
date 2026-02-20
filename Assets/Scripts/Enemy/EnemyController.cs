@@ -113,6 +113,9 @@ public class EnemyController : MonoBehaviour
     [Tooltip("Log state transitions and detection events to the Console.")]
     public bool EnableDebugLogs = true;
 
+    public event System.Action OnAggroed;
+    public event System.Action OnLeashed;
+
     // ─────────────────────────────────────────────────
     //  Private / Internal
     // ─────────────────────────────────────────────────
@@ -255,6 +258,12 @@ public class EnemyController : MonoBehaviour
         _currentState?.Exit();
         _currentState = newState;
         _currentState.Enter();
+
+        // Notify UI of state changes
+        if (newState is EnemyChaseState || newState is EnemyAttackState)
+            OnAggroed?.Invoke();
+        else if (newState is EnemyReturnToPostState)
+            OnLeashed?.Invoke();
     }
 
     // ─────────────────────────────────────────────────
