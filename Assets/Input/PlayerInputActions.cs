@@ -111,15 +111,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Interact"",
-                    ""type"": ""Button"",
-                    ""id"": ""b2f46ca4-c9d4-4746-ad7e-78ee73cacd9d"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""CameraPivot"",
                     ""type"": ""Value"",
                     ""id"": ""49e929ab-d86f-4f20-8c70-b255fad07f7c"",
@@ -132,6 +123,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""name"": ""CameraPivotHeld"",
                     ""type"": ""Button"",
                     ""id"": ""11046323-7c28-4bf2-888c-51a6f3ed8c4a"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RightClickInteract"",
+                    ""type"": ""Button"",
+                    ""id"": ""c6247666-c729-42a3-9368-d876a0f76b81"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -207,17 +207,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""aad783f2-6422-4aae-9f62-62b36d48448f"",
-                    ""path"": ""<Keyboard>/e"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Interact"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""533b9caa-cbe8-4f04-b9f8-afcef49d8609"",
                     ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
@@ -235,6 +224,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""CameraPivotHeld"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""de271ccf-4803-433f-9311-48aadc3821b8"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RightClickInteract"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -423,9 +423,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Zoom = m_Player.FindAction("Zoom", throwIfNotFound: true);
-        m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
         m_Player_CameraPivot = m_Player.FindAction("CameraPivot", throwIfNotFound: true);
         m_Player_CameraPivotHeld = m_Player.FindAction("CameraPivotHeld", throwIfNotFound: true);
+        m_Player_RightClickInteract = m_Player.FindAction("RightClickInteract", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_ToggleInventory = m_UI.FindAction("ToggleInventory", throwIfNotFound: true);
@@ -515,9 +515,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Zoom;
-    private readonly InputAction m_Player_Interact;
     private readonly InputAction m_Player_CameraPivot;
     private readonly InputAction m_Player_CameraPivotHeld;
+    private readonly InputAction m_Player_RightClickInteract;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -538,10 +538,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Zoom => m_Wrapper.m_Player_Zoom;
         /// <summary>
-        /// Provides access to the underlying input action "Player/Interact".
-        /// </summary>
-        public InputAction @Interact => m_Wrapper.m_Player_Interact;
-        /// <summary>
         /// Provides access to the underlying input action "Player/CameraPivot".
         /// </summary>
         public InputAction @CameraPivot => m_Wrapper.m_Player_CameraPivot;
@@ -549,6 +545,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/CameraPivotHeld".
         /// </summary>
         public InputAction @CameraPivotHeld => m_Wrapper.m_Player_CameraPivotHeld;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/RightClickInteract".
+        /// </summary>
+        public InputAction @RightClickInteract => m_Wrapper.m_Player_RightClickInteract;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -581,15 +581,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Zoom.started += instance.OnZoom;
             @Zoom.performed += instance.OnZoom;
             @Zoom.canceled += instance.OnZoom;
-            @Interact.started += instance.OnInteract;
-            @Interact.performed += instance.OnInteract;
-            @Interact.canceled += instance.OnInteract;
             @CameraPivot.started += instance.OnCameraPivot;
             @CameraPivot.performed += instance.OnCameraPivot;
             @CameraPivot.canceled += instance.OnCameraPivot;
             @CameraPivotHeld.started += instance.OnCameraPivotHeld;
             @CameraPivotHeld.performed += instance.OnCameraPivotHeld;
             @CameraPivotHeld.canceled += instance.OnCameraPivotHeld;
+            @RightClickInteract.started += instance.OnRightClickInteract;
+            @RightClickInteract.performed += instance.OnRightClickInteract;
+            @RightClickInteract.canceled += instance.OnRightClickInteract;
         }
 
         /// <summary>
@@ -607,15 +607,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Zoom.started -= instance.OnZoom;
             @Zoom.performed -= instance.OnZoom;
             @Zoom.canceled -= instance.OnZoom;
-            @Interact.started -= instance.OnInteract;
-            @Interact.performed -= instance.OnInteract;
-            @Interact.canceled -= instance.OnInteract;
             @CameraPivot.started -= instance.OnCameraPivot;
             @CameraPivot.performed -= instance.OnCameraPivot;
             @CameraPivot.canceled -= instance.OnCameraPivot;
             @CameraPivotHeld.started -= instance.OnCameraPivotHeld;
             @CameraPivotHeld.performed -= instance.OnCameraPivotHeld;
             @CameraPivotHeld.canceled -= instance.OnCameraPivotHeld;
+            @RightClickInteract.started -= instance.OnRightClickInteract;
+            @RightClickInteract.performed -= instance.OnRightClickInteract;
+            @RightClickInteract.canceled -= instance.OnRightClickInteract;
         }
 
         /// <summary>
@@ -800,13 +800,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnZoom(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Interact" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnInteract(InputAction.CallbackContext context);
-        /// <summary>
         /// Method invoked when associated input action "CameraPivot" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
@@ -820,6 +813,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCameraPivotHeld(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RightClickInteract" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRightClickInteract(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

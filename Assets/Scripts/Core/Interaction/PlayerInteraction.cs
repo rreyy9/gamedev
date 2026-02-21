@@ -3,45 +3,54 @@ using UnityEngine.InputSystem;
 using System;
 
 /// <summary>
-/// Scans for nearby IInteractable objects using Physics.OverlapSphere.
-/// Highlights the closest valid target and dispatches the Interact input.
+/// WoW-style right-click interaction system.
+/// Raycasts from the mouse cursor on right-click.
+/// If the ray hits an IInteractable, it interacts and suppresses camera orbit.
+/// If not, camera orbit proceeds as normal.
 /// Attach to the Player GameObject.
 /// </summary>
 public class PlayerInteraction : MonoBehaviour
 {
     [Header("Detection Settings")]
-    [SerializeField] private float interactRange = 3f;
+    [SerializeField] private float interactRange = 5f;
     [SerializeField] private LayerMask interactableLayer;
     [SerializeField] private float scanInterval = 0.1f;
+
+    [Header("Raycast Settings")]
+    [SerializeField] private Camera gameCamera;
+    [SerializeField] private float raycastMaxDistance = 50f;
 
     [Header("Debug")]
     [SerializeField] private bool showGizmo = true;
 
-    // Events for UI
-    public event Action<string> OnInteractableFound;
-    public event Action OnInteractableLost;
+    // Public flag — IsometricCamera reads this to suppress orbit
+    public bool IsInteractingThisFrame { get; private set; }
 
     // Runtime
-    private IInteractable currentTarget;
+    private IInteractable currentHighlightTarget;
     private PlayerInputActions inputActions;
     private float scanTimer;
 
-    public IInteractable CurrentTarget => currentTarget;
+    public IInteractable CurrentTarget => currentHighlightTarget;
 
     private void Awake()
     {
         inputActions = new PlayerInputActions();
+
+        // Auto-find camera if not assigned
+        if (gameCamera == null)
+            gameCamera = Camera.main;
     }
 
     private void OnEnable()
     {
-        inputActions.Player.Interact.performed += OnInteract;
+        inputActions.Player.RightClickInteract.performed += OnRightClickPerformed;
         inputActions.Player.Enable();
     }
 
     private void OnDisable()
     {
-        inputActions.Player.Interact.performed -= OnInteract;
+        inputActions.Player.RightClickInteract.performed -= OnRightClickPerformed;
         inputActions.Player.Disable();
     }
 
@@ -51,11 +60,23 @@ public class PlayerInteraction : MonoBehaviour
         if (scanTimer <= 0f)
         {
             scanTimer = scanInterval;
-            ScanForInteractables();
+            ScanForNearbyHighlight();
         }
     }
 
-    private void ScanForInteractables()
+    private void LateUpdate()
+    {
+        // Reset after camera's LateUpdate has had a chance to read it.
+        // Script execution order ensures IsometricCamera LateUpdate runs first
+        // (set this in Project Settings if needed).
+        IsInteractingThisFrame = false;
+    }
+
+    /// <summary>
+    /// Scans nearby objects for highlight purposes only (shows the prompt when you're close).
+    /// Actual interaction is triggered by right-click raycast.
+    /// </summary>
+    private void ScanForNearbyHighlight()
     {
         Collider[] hits = Physics.OverlapSphere(transform.position, interactRange, interactableLayer);
 
@@ -75,39 +96,62 @@ public class PlayerInteraction : MonoBehaviour
             }
         }
 
-        if (closest != currentTarget)
+        if (closest != currentHighlightTarget)
         {
-            // Lost previous target
-            if (currentTarget != null)
+            if (currentHighlightTarget != null)
             {
-                currentTarget.SetHighlight(false);
-                OnInteractableLost?.Invoke();
+                currentHighlightTarget.SetHighlight(false);
             }
 
-            currentTarget = closest;
+            currentHighlightTarget = closest;
 
-            // Found new target
-            if (currentTarget != null)
+            if (currentHighlightTarget != null)
             {
-                currentTarget.SetHighlight(true);
-                OnInteractableFound?.Invoke(currentTarget.InteractionPrompt);
+                currentHighlightTarget.SetHighlight(true);
             }
         }
     }
 
-    private void OnInteract(InputAction.CallbackContext context)
+    /// <summary>
+    /// Called when right mouse button is pressed.
+    /// Raycasts from cursor — if it hits an interactable, interact and block camera orbit.
+    /// </summary>
+    private void OnRightClickPerformed(InputAction.CallbackContext context)
     {
-        // If loot window is open, close it instead
+        // If loot window is open, close it first
         if (LootUIManager.Instance != null && LootUIManager.Instance.IsOpen)
         {
             LootUIManager.Instance.CloseLootWindow();
+            IsInteractingThisFrame = true; // Still suppress camera
             return;
         }
 
-        if (currentTarget != null && currentTarget.CanInteract)
+        // Raycast from mouse cursor into the world
+        Vector2 mousePos = Mouse.current.position.ReadValue();
+        Ray ray = gameCamera.ScreenPointToRay(mousePos);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, raycastMaxDistance, interactableLayer))
         {
-            currentTarget.Interact();
+            var interactable = hit.collider.GetComponentInParent<IInteractable>();
+            if (interactable != null && interactable.CanInteract)
+            {
+                // Use hit.distance (ray from camera) as a sanity check, but primarily
+                // trust the player-to-hit-point distance so pivot offsets don't skew it
+                float dist = Vector3.Distance(transform.position, hit.point);
+                if (dist <= interactRange)
+                {
+                    interactable.Interact();
+                    IsInteractingThisFrame = true;
+                    return;
+                }
+                else
+                {
+                    Debug.Log($"[PlayerInteraction] {interactable.InteractionPrompt} — too far away ({dist:F1}m, max {interactRange}m).");
+                }
+            }
         }
+
+        // Nothing interactable was clicked — camera orbit will proceed normally
     }
 
     private void OnDrawGizmosSelected()

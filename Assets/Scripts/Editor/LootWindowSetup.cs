@@ -248,21 +248,11 @@ public static class LootWindowSetup
         promptTextRT.anchoredPosition = Vector2.zero;
 
         TextMeshProUGUI promptTMP = promptTextObj.AddComponent<TextMeshProUGUI>();
-        promptTMP.text = "Press [E] to Interact";
+        promptTMP.text = "";
         promptTMP.fontSize = 18;
         promptTMP.alignment = TextAlignmentOptions.Center;
         promptTMP.color = new Color(0.95f, 0.85f, 0.5f, 1f); // Gold
         promptTMP.raycastTarget = false;
-
-        // Wire up InteractionPromptUI
-        InteractionPromptUI promptUI = promptPanel.AddComponent<InteractionPromptUI>();
-        SerializedObject promptSO = new SerializedObject(promptUI);
-        promptSO.FindProperty("promptText").objectReferenceValue = promptTMP;
-        promptSO.FindProperty("promptFormat").stringValue = "Press [E] {1}";
-        promptSO.FindProperty("interactKeyDisplay").stringValue = "E";
-        promptSO.ApplyModifiedProperties();
-
-        Debug.Log("LootWindowSetup: Interaction Prompt Panel built and wired.");
 
         // ──────────────────────────────────────────────────
         //  5. MARK DIRTY & DONE

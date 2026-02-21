@@ -84,23 +84,40 @@ public class EnemyDeadState : EnemyState
             }
         }
 
-        // ── 3. Enable loot interaction ────────────────────────────────────────
+        // ── 3. Enable loot interaction ──────────────────────────────────────────
         _lootSource = Controller.GetComponent<LootSource>();
         if (_lootSource != null)
         {
             _lootSource.enabled = true;
+        }
+
+        // ── Switch layer from Enemy → Interactable so right-click loot works ──
+        int interactableLayer = LayerMask.NameToLayer("Interactable");
+        if (interactableLayer != -1)
+        {
+            Controller.gameObject.layer = interactableLayer;
+
+            // Also switch all children (colliders may be on child objects)
+            foreach (Transform child in Controller.GetComponentsInChildren<Transform>())
+                child.gameObject.layer = interactableLayer;
 
             if (Controller.EnableDebugLogs)
-                Debug.Log($"[{Controller.name}] LootSource enabled on death.", Controller);
+                Debug.Log($"[{Controller.name}] Layer switched to Interactable for looting.", Controller);
         }
         else
         {
-            if (Controller.EnableDebugLogs)
-                Debug.LogWarning($"[{Controller.name}] No LootSource component found — corpse won't be lootable.", Controller);
+            Debug.LogWarning($"[{Controller.name}] 'Interactable' layer not found! Add it in Project Settings > Tags and Layers.", Controller);
         }
 
-        // ── 4. Cache collider for later disable ───────────────────────────────
-        _collider = Controller.GetComponent<Collider>();
+        // ── 4. Cache collider and enable it now that enemy is dead ────────────────
+        _collider = Controller.GetComponentInChildren<Collider>(true);
+        if (_collider != null)
+        {
+            _collider.enabled = true;
+
+            if (Controller.EnableDebugLogs)
+                Debug.Log($"[{Controller.name}] Bone collider enabled for looting.", Controller);
+        }
 
         if (Controller.EnableDebugLogs)
             Debug.Log($"[{Controller.name}] → Dead", Controller);
