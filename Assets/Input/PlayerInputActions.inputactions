@@ -25,15 +25,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Interact",
-                    "type": "Button",
-                    "id": "b2f46ca4-c9d4-4746-ad7e-78ee73cacd9d",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "CameraPivot",
                     "type": "Value",
                     "id": "49e929ab-d86f-4f20-8c70-b255fad07f7c",
@@ -46,6 +37,15 @@
                     "name": "CameraPivotHeld",
                     "type": "Button",
                     "id": "11046323-7c28-4bf2-888c-51a6f3ed8c4a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "RightClickInteract",
+                    "type": "Button",
+                    "id": "c6247666-c729-42a3-9368-d876a0f76b81",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -121,17 +121,6 @@
                 },
                 {
                     "name": "",
-                    "id": "aad783f2-6422-4aae-9f62-62b36d48448f",
-                    "path": "<Keyboard>/e",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Interact",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "533b9caa-cbe8-4f04-b9f8-afcef49d8609",
                     "path": "<Mouse>/delta",
                     "interactions": "",
@@ -149,6 +138,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "CameraPivotHeld",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "de271ccf-4803-433f-9311-48aadc3821b8",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RightClickInteract",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

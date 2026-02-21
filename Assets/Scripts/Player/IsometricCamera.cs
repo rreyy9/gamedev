@@ -44,7 +44,9 @@ public class IsometricCamera : MonoBehaviour
     private float _yaw = 45f;
     private float _pitch = 45f;
     private bool _isPivoting = false;
+    private bool _pivotPendingStart = false;
     private float _zoomInput;
+    private PlayerInteraction _playerInteraction;
 
     private PlayerInputActions _inputActions;
 
@@ -53,6 +55,9 @@ public class IsometricCamera : MonoBehaviour
         _inputActions = new PlayerInputActions();
         _yaw = 45f;
         _pitch = 45f;
+
+        // Find PlayerInteraction so we can check if right-click was consumed
+        _playerInteraction = FindFirstObjectByType<PlayerInteraction>();
     }
 
     private void OnEnable()
@@ -78,21 +83,33 @@ public class IsometricCamera : MonoBehaviour
 
     private void OnPivotStart(InputAction.CallbackContext context)
     {
-        _isPivoting = true;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        // Don't commit to orbiting yet — defer to LateUpdate so
+        // PlayerInteraction has time to set IsInteractingThisFrame first
+        _pivotPendingStart = true;
     }
 
     private void OnPivotEnd(InputAction.CallbackContext context)
     {
+        _pivotPendingStart = false; // Cancel any pending start too
         _isPivoting = false;
-        Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
     private void LateUpdate()
     {
         if (target == null) return;
+
+        // Resolve pending pivot start — check if interaction consumed the click
+        if (_pivotPendingStart)
+        {
+            _pivotPendingStart = false;
+            bool interactionConsumed = _playerInteraction != null && _playerInteraction.IsInteractingThisFrame;
+            if (!interactionConsumed)
+            {
+                _isPivoting = true;
+                Cursor.visible = false;
+            }
+        }
 
         HandleZoom();
         HandlePivot();
