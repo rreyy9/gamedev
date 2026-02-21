@@ -15,6 +15,7 @@ public class ActionBarUI : MonoBehaviour
     private Inventory actionBar;
     private InventorySlotUI[] slotUIs;
     private int selectedIndex = 0;
+    public int SelectedIndex => selectedIndex;
 
     /// <summary>
     /// Called by InventoryManager to bind this UI to the action bar inventory.

@@ -123,6 +123,11 @@ public class LootUIManager : MonoBehaviour
         if (enableDebugLogs)
             Debug.Log("[LootUIManager] Closing loot window.");
 
+        // Always hide the tooltip — OnPointerExit won't fire if the window
+        // closes while the cursor is still over a slot.
+        if (TooltipUI.Instance != null)
+            TooltipUI.Instance.Hide();
+
         if (lootWindowPanel != null)
             lootWindowPanel.SetActive(false);
 

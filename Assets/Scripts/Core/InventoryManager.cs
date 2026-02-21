@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 /// <summary>
 /// Central manager that owns the player's inventory and action bar data.
@@ -15,6 +16,7 @@ public class InventoryManager : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private InventoryUI inventoryUI;
     [SerializeField] private ActionBarUI actionBarUI;
+    [SerializeField] private Button inventoryCloseButton;
 
     [Header("Input")]
     [SerializeField] private PlayerInputActions inputActions;
@@ -50,15 +52,17 @@ public class InventoryManager : MonoBehaviour
     {
         inputActions.UI.Enable();
         inputActions.UI.ToggleInventory.performed += OnToggleInventory;
-
-        // Subscribe to action bar number key usage
+        inputActions.UI.ActionBarSelect.performed += OnActionBarSelect;
         inputActions.UI.ActionBarUse.performed += OnActionBarUse;
+        inputActions.UI.CloseLootWindow.performed += OnCloseUI;
     }
 
     private void OnDisable()
     {
         inputActions.UI.ToggleInventory.performed -= OnToggleInventory;
+        inputActions.UI.ActionBarSelect.performed -= OnActionBarSelect;
         inputActions.UI.ActionBarUse.performed -= OnActionBarUse;
+        inputActions.UI.CloseLootWindow.performed -= OnCloseUI;
         inputActions.UI.Disable();
     }
 
@@ -76,6 +80,9 @@ public class InventoryManager : MonoBehaviour
             actionBarUI.Initialize(ActionBar);
             // Action bar is always visible
         }
+
+        if (inventoryCloseButton != null)
+            inventoryCloseButton.onClick.AddListener(CloseInventory);
     }
 
     // ─────────────────────────────────────────────
@@ -96,16 +103,27 @@ public class InventoryManager : MonoBehaviour
         Cursor.visible = true;
     }
 
-    private void OnActionBarUse(InputAction.CallbackContext context)
+    // ─────────────────────────────────────────────
+    //  Input Handlers
+    // ─────────────────────────────────────────────
+
+    private void OnActionBarSelect(InputAction.CallbackContext context)
     {
-        // The action bar use sends a float value 1-9 based on which key was pressed
         float value = context.ReadValue<float>();
         int slotIndex = Mathf.RoundToInt(value) - 1; // Convert 1-9 to 0-8
 
         if (slotIndex >= 0 && slotIndex < actionBarSlotCount)
         {
-            UseActionBarSlot(slotIndex);
+            actionBarUI?.UpdateSelection(slotIndex);
         }
+    }
+
+    private void OnActionBarUse(InputAction.CallbackContext context)
+    {
+        if (actionBarUI == null) return;
+
+        int selectedIndex = actionBarUI.SelectedIndex;
+        UseActionBarSlot(selectedIndex);
     }
 
     // ─────────────────────────────────────────────
@@ -203,5 +221,24 @@ public class InventoryManager : MonoBehaviour
     private void OnDestroy()
     {
         if (Instance == this) Instance = null;
+
+        if (inventoryCloseButton != null)
+            inventoryCloseButton.onClick.RemoveListener(CloseInventory);
+
+        inputActions?.Dispose();
+    }
+
+    private void OnCloseUI(InputAction.CallbackContext context)
+    {
+        if (isInventoryOpen)
+            CloseInventory();
+    }
+
+    public void CloseInventory()
+    {
+        isInventoryOpen = false;
+
+        if (inventoryUI != null)
+            inventoryUI.gameObject.SetActive(false);
     }
 }

@@ -32,6 +32,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "CameraPivot",
+                    "type": "Value",
+                    "id": "49e929ab-d86f-4f20-8c70-b255fad07f7c",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "CameraPivotHeld",
+                    "type": "Button",
+                    "id": "11046323-7c28-4bf2-888c-51a6f3ed8c4a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -104,11 +122,33 @@
                 {
                     "name": "",
                     "id": "aad783f2-6422-4aae-9f62-62b36d48448f",
-                    "path": "<Keyboard>/f",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "533b9caa-cbe8-4f04-b9f8-afcef49d8609",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CameraPivot",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c71b1209-837e-4f6f-8129-ea899e639ede",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CameraPivotHeld",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -128,7 +168,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ActionBarUse",
+                    "name": "ActionBarSelect",
                     "type": "Value",
                     "id": "de40b8fd-3e60-4f43-8ed4-0896227be4e6",
                     "expectedControlType": "Axis",
@@ -140,6 +180,15 @@
                     "name": "CloseLootWindow",
                     "type": "Button",
                     "id": "6d0f4ed4-9881-4cbc-94c1-556490901691",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ActionBarUse",
+                    "type": "Button",
+                    "id": "3fb69c70-9b25-4a36-930b-7f3323e816ee",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -165,7 +214,7 @@
                     "interactions": "",
                     "processors": "Scale",
                     "groups": "",
-                    "action": "ActionBarUse",
+                    "action": "ActionBarSelect",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -176,7 +225,7 @@
                     "interactions": "",
                     "processors": "Scale(factor=2)",
                     "groups": "",
-                    "action": "ActionBarUse",
+                    "action": "ActionBarSelect",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -187,7 +236,7 @@
                     "interactions": "",
                     "processors": "Scale(factor=3)",
                     "groups": "",
-                    "action": "ActionBarUse",
+                    "action": "ActionBarSelect",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -198,7 +247,7 @@
                     "interactions": "",
                     "processors": "Scale(factor=4)",
                     "groups": "",
-                    "action": "ActionBarUse",
+                    "action": "ActionBarSelect",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -209,7 +258,7 @@
                     "interactions": "",
                     "processors": "Scale(factor=5)",
                     "groups": "",
-                    "action": "ActionBarUse",
+                    "action": "ActionBarSelect",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -220,7 +269,7 @@
                     "interactions": "",
                     "processors": "Scale(factor=6)",
                     "groups": "",
-                    "action": "ActionBarUse",
+                    "action": "ActionBarSelect",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -231,7 +280,7 @@
                     "interactions": "",
                     "processors": "Scale(factor=7)",
                     "groups": "",
-                    "action": "ActionBarUse",
+                    "action": "ActionBarSelect",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -242,7 +291,7 @@
                     "interactions": "",
                     "processors": "Scale(factor=8)",
                     "groups": "",
-                    "action": "ActionBarUse",
+                    "action": "ActionBarSelect",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -253,7 +302,7 @@
                     "interactions": "",
                     "processors": "Scale(factor=9)",
                     "groups": "",
-                    "action": "ActionBarUse",
+                    "action": "ActionBarSelect",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -265,6 +314,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "CloseLootWindow",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0ed32762-4118-4006-a797-65742ec1f91c",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ActionBarUse",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
