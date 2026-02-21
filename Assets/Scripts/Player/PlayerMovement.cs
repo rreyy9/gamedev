@@ -23,6 +23,9 @@ public class PlayerMovement : MonoBehaviour
     [Header("Input")]
     [SerializeField] private PlayerInputActions inputActions;
 
+    [Header("Camera")]
+    [SerializeField] private Transform cameraTransform;
+
     private CharacterController characterController;
     private Vector2 moveInput;
     private Vector3 moveDirection;
@@ -100,29 +103,31 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!_movementEnabled) return;
 
-        // Store position before movement for debugging
         Vector3 positionBefore = transform.position;
 
-        // Convert 2D input to 3D movement for isometric view
-        moveDirection = new Vector3(moveInput.x, 0f, moveInput.y);
+        // ── Camera-relative direction ─────────────────────────────────────────
+        // Project the camera's forward and right onto the horizontal plane so
+        // elevation angle doesn't affect movement speed.
+        Vector3 camForward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
+        Vector3 camRight = cameraTransform != null ? cameraTransform.right : Vector3.right;
 
-        // Determine current speed based on input magnitude
+        camForward.y = 0f;
+        camRight.y = 0f;
+        camForward.Normalize();
+        camRight.Normalize();
+
+        // W/S drives along camera forward, A/D drives along camera right
+        moveDirection = (camForward * moveInput.y) + (camRight * moveInput.x);
+        // ─────────────────────────────────────────────────────────────────────
+
         float inputMagnitude = moveInput.magnitude;
         currentSpeed = Mathf.Lerp(0f, runSpeed, inputMagnitude);
 
-        // Apply movement using CharacterController
         if (moveDirection.magnitude >= 0.1f)
         {
-            // Normalize direction for consistent speed
             Vector3 normalizedMove = moveDirection.normalized;
+            characterController.Move(normalizedMove * currentSpeed * Time.deltaTime);
 
-            // Calculate movement for this frame
-            Vector3 movement = normalizedMove * currentSpeed * Time.deltaTime;
-
-            // Move the character (THIS is the only thing moving the character)
-            characterController.Move(movement);
-
-            // Rotate character to face movement direction
             if (normalizedMove != Vector3.zero)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(normalizedMove);
@@ -134,27 +139,19 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        // Apply gravity
+        // Gravity
         if (characterController.isGrounded)
-        {
-            velocityY = -2f; // Small downward force to keep grounded
-        }
+            velocityY = -2f;
         else
-        {
             velocityY += Physics.gravity.y * Time.deltaTime;
-        }
 
-        Vector3 gravityMove = new Vector3(0, velocityY, 0);
-        characterController.Move(gravityMove * Time.deltaTime);
+        characterController.Move(new Vector3(0, velocityY, 0) * Time.deltaTime);
 
-        // Debug: Show how far we actually moved
         if (showDebugInfo)
         {
             Vector3 actualMovement = transform.position - positionBefore;
             if (actualMovement.magnitude > 0.01f)
-            {
                 Debug.DrawRay(positionBefore, actualMovement * 10f, Color.green, 0.1f);
-            }
         }
     }
 
