@@ -41,6 +41,9 @@ public class ItemData : ScriptableObject
     [Header("Value")]
     [Tooltip("Sell/buy value for future shop systems")]
     public int goldValue = 0;
+
+    [Header("Equipment")]
+    [SerializeField] public GameObject equippablePrefab; // The 3D model to spawn on WeaponSocket
 }
 
 /// <summary>
@@ -52,5 +55,6 @@ public enum ItemCategory
     Consumable,     // Potions, food, scrolls
     QuestItem,      // Items tied to quests (often non-stackable)
     Tool,
+    Weapon,
     Miscellaneous   // Everything else
 }

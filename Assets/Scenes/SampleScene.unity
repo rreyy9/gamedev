@@ -1856,6 +1856,11 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!4 &696867228 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7610508414857847152, guid: 941745712e1de554a9111a399cbf1579, type: 3}
+  m_PrefabInstance: {fileID: 846010139}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &706807113
 GameObject:
   m_ObjectHideFlags: 0
@@ -4067,7 +4072,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1426772749}
   m_CullTransparentMesh: 1
---- !u!1 &1481530563
+--- !u!1 &1465895965
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4075,82 +4080,38 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1481530564}
-  - component: {fileID: 1481530568}
-  - component: {fileID: 1481530567}
-  - component: {fileID: 1481530566}
-  - component: {fileID: 1481530569}
-  - component: {fileID: 1481530565}
+  - component: {fileID: 1465895966}
+  - component: {fileID: 1465895968}
+  - component: {fileID: 1465895967}
   m_Layer: 6
-  m_Name: RockOre
+  m_Name: RockMesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1481530564
+--- !u!4 &1465895966
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1481530563}
+  m_GameObject: {fileID: 1465895965}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.254, y: 0, z: 3.265}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 834886283}
+  m_Father: {fileID: 1481530564}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1481530565
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1481530563}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 378c39563d862ad469a4550fc28c3dd4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LootSource
-  lootTable: {fileID: 11400000, guid: f7ed9041cf179354ea14d7e1d8ae21fd, type: 2}
-  lootTableType: 3
-  customPrompt: 
-  canRespawn: 1
-  respawnTime: 5
-  highlightObject: {fileID: 0}
-  visualModel: {fileID: 1481530563}
-  enableDebugLogs: 1
---- !u!135 &1481530566
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1481530563}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!23 &1481530567
+--- !u!23 &1465895967
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1481530563}
+  m_GameObject: {fileID: 1465895965}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -4169,7 +4130,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 8950265562796933603, guid: 8a0da251973487d41b6728a5bcf46554, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4193,14 +4154,90 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &1481530568
+--- !u!33 &1465895968
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1481530563}
+  m_GameObject: {fileID: 1465895965}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1481530563
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1481530564}
+  - component: {fileID: 1481530566}
+  - component: {fileID: 1481530569}
+  - component: {fileID: 1481530565}
+  m_Layer: 6
+  m_Name: RockOre
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1481530564
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1481530563}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.254, y: 0, z: 3.265}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1465895966}
+  m_Father: {fileID: 834886283}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1481530565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1481530563}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 378c39563d862ad469a4550fc28c3dd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LootSource
+  lootTable: {fileID: 11400000, guid: f7ed9041cf179354ea14d7e1d8ae21fd, type: 2}
+  lootTableType: 3
+  customPrompt: 
+  canRespawn: 1
+  respawnTime: 3
+  highlightObject: {fileID: 0}
+  visualModel: {fileID: 1465895965}
+  enableDebugLogs: 1
+--- !u!135 &1481530566
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1481530563}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1481530569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4215,9 +4252,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MiningNode
   nodeName: Copper Ore
   miningDuration: 3
-  respawnTime: 30
-  nodeVisuals: {fileID: 1481530563}
+  requiredToolCategory: 3
   highlightObject: {fileID: 0}
+  depletedVisuals: {fileID: 0}
 --- !u!1 &1506769841
 GameObject:
   m_ObjectHideFlags: 0
@@ -4545,8 +4582,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91380adc8aa73354b90b77b76ba0af9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipmentManager
-  pickaxeModel: {fileID: 2138785560}
-  pickaxeItemData: {fileID: 11400000, guid: e05242865cbbd9140b2db8f718b54ff3, type: 2}
+  weaponSocket: {fileID: 696867228}
   animator: {fileID: 363875829}
 --- !u!1 &1771805066
 GameObject:
@@ -5543,11 +5579,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2127466886}
   m_CullTransparentMesh: 1
---- !u!1 &2138785560 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4101520711856727327, guid: 941745712e1de554a9111a399cbf1579, type: 3}
-  m_PrefabInstance: {fileID: 846010139}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

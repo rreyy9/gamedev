@@ -360,4 +360,18 @@ public class LootSource : MonoBehaviour, IInteractable
 
         OnRespawned?.Invoke();
     }
+
+    /// <summary>
+    /// Resets loot state so the next Interact() call rolls fresh drops.
+    /// Called by MiningNode when the node respawns.
+    /// </summary>
+    public void ResetLoot()
+    {
+        hasBeenLooted = false;
+        isLootGenerated = false;
+        currentLoot.Clear();
+
+        if (enableDebugLogs)
+            Debug.Log($"[LootSource] '{gameObject.name}' loot reset — fresh drops will roll on next interaction.");
+    }
 }
