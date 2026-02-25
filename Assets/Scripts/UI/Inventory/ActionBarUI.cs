@@ -18,6 +18,13 @@ public class ActionBarUI : MonoBehaviour
     public int SelectedIndex => selectedIndex;
 
     /// <summary>
+    /// Fired whenever the selected action bar slot changes.
+    /// Passes the ItemData of the newly selected slot (null if the slot is empty).
+    /// EquipmentManager subscribes to this to show/hide held weapons.
+    /// </summary>
+    public static event System.Action<ItemData> OnSlotSelected;
+
+    /// <summary>
     /// Called by InventoryManager to bind this UI to the action bar inventory.
     /// </summary>
     public void Initialize(Inventory actionBar)
@@ -94,6 +101,10 @@ public class ActionBarUI : MonoBehaviour
 
         // Select new
         slotUIs[selectedIndex].SetSelected(true);
+
+        // ── NEW: Broadcast the selection so other systems can react ──
+        var selectedStack = actionBar?.GetSlot(selectedIndex);
+        OnSlotSelected?.Invoke(selectedStack != null && selectedStack.IsValid ? selectedStack.itemData : null);
     }
 
     private void OnSlotDataChanged(int slotIndex)
