@@ -21,3 +21,4 @@ MonoBehaviour:
   isConsumable: 0
   useCooldown: 0
   goldValue: 0
+  equippablePrefab: {fileID: 3480242447457170110, guid: 50b22ccaac98e6c479eac2e36f6968d8, type: 3}

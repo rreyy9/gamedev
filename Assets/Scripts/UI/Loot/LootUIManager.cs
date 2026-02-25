@@ -35,6 +35,9 @@ public class LootUIManager : MonoBehaviour
 
     public bool IsOpen => lootWindowPanel != null && lootWindowPanel.activeSelf;
 
+    // Add this line:
+    public static event System.Action OnLootWindowClosed;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -123,8 +126,6 @@ public class LootUIManager : MonoBehaviour
         if (enableDebugLogs)
             Debug.Log("[LootUIManager] Closing loot window.");
 
-        // Always hide the tooltip — OnPointerExit won't fire if the window
-        // closes while the cursor is still over a slot.
         if (TooltipUI.Instance != null)
             TooltipUI.Instance.Hide();
 
@@ -132,6 +133,9 @@ public class LootUIManager : MonoBehaviour
             lootWindowPanel.SetActive(false);
 
         ClearSlots();
+
+        // Fire BEFORE clearing currentSource so listeners can inspect loot state
+        OnLootWindowClosed?.Invoke();
 
         if (currentSource != null)
         {
