@@ -51,5 +51,6 @@ public enum ItemCategory
     Resource,       // Generic quest resources (wood, ore, etc.)
     Consumable,     // Potions, food, scrolls
     QuestItem,      // Items tied to quests (often non-stackable)
+    Tool,
     Miscellaneous   // Everything else
 }
