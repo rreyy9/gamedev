@@ -3,7 +3,7 @@ using System.Collections;
 
 /// <summary>
 /// A mineable rock node. Implements IInteractable.
-/// Handles the mining cast bar and animation only.
+/// Handles the mining cast bar, animation, and cancellation.
 /// LootSource handles loot generation, mesh visibility, and respawn timing.
 /// </summary>
 public class MiningNode : MonoBehaviour, IInteractable
@@ -17,23 +17,20 @@ public class MiningNode : MonoBehaviour, IInteractable
 
     [Header("Visuals")]
     [SerializeField] private GameObject highlightObject;
-    [SerializeField] private GameObject depletedVisuals; // optional greyed-out rock mesh
+    [SerializeField] private GameObject depletedVisuals;
 
     // Runtime state
     private bool _isDepleted = false;
     private bool _isMining = false;
     private LootSource _lootSource;
+    private Coroutine _miningCoroutine;
 
     // ─────────────────────────────────────────────
     //  IInteractable
     // ─────────────────────────────────────────────
 
-    // Simple — player always mines, no loot window shortcut
     public string InteractionPrompt => _isDepleted ? $"{nodeName} (Depleted)" : $"Mine {nodeName}";
-
-    // Simple — only blocked while actively mining or fully depleted waiting for respawn
     public bool CanInteract => !_isMining && !_isDepleted;
-
     public Transform InteractableTransform => transform;
 
     public void Interact()
@@ -47,7 +44,7 @@ public class MiningNode : MonoBehaviour, IInteractable
             return;
         }
 
-        StartCoroutine(MiningRoutine());
+        _miningCoroutine = StartCoroutine(MiningRoutine());
     }
 
     public void SetHighlight(bool active)
@@ -66,12 +63,8 @@ public class MiningNode : MonoBehaviour, IInteractable
         _lootSource = GetComponent<LootSource>();
 
         if (_lootSource == null)
-        {
-            Debug.LogWarning($"[MiningNode] '{gameObject.name}' has no LootSource component!");
-            return;
-        }
+            Debug.LogWarning($"[MiningNode] '{gameObject.name}' has no LootSource component! Loot window won't open.");
 
-        // Subscribe to LootSource events so we stay in sync
         _lootSource.OnLooted += HandleFullyLooted;
         _lootSource.OnRespawned += HandleRespawned;
     }
@@ -92,8 +85,6 @@ public class MiningNode : MonoBehaviour, IInteractable
 
     private void HandleFullyLooted()
     {
-        // LootSource handles hiding the mesh and starting respawn timer.
-        // _isDepleted is already true from MiningRoutine, nothing extra needed.
         Debug.Log($"[MiningNode] '{gameObject.name}' depleted. Waiting for LootSource respawn.");
     }
 
@@ -102,6 +93,16 @@ public class MiningNode : MonoBehaviour, IInteractable
         _isDepleted = false;
         if (depletedVisuals != null) depletedVisuals.SetActive(false);
         Debug.Log($"[MiningNode] '{gameObject.name}' ready to mine again.");
+    }
+
+    private void HandleLootWindowClosed()
+    {
+        if (_isDepleted && _lootSource != null && _lootSource.HasLoot)
+        {
+            _isDepleted = false;
+            if (depletedVisuals != null) depletedVisuals.SetActive(false);
+            Debug.Log($"[MiningNode] Loot window closed without looting — ready to mine again.");
+        }
     }
 
     // ─────────────────────────────────────────────
@@ -116,29 +117,48 @@ public class MiningNode : MonoBehaviour, IInteractable
         var gatherController = player?.GetComponent<PlayerGatheringController>();
         gatherController?.StartMining(miningDuration);
 
-        yield return new WaitForSeconds(miningDuration);
+        float elapsed = 0f;
 
+        // ── Active wait loop — checks for cancel each frame ──
+        while (elapsed < miningDuration)
+        {
+            elapsed += Time.deltaTime;
+
+            // Check Escape key
+            if (gatherController != null && gatherController.IsCancelRequested)
+            {
+                CancelMining(gatherController, "Escape pressed");
+                yield break; // Exit coroutine immediately
+            }
+
+            // Check player movement
+            if (gatherController != null && gatherController.HasPlayerMoved)
+            {
+                CancelMining(gatherController, "Player moved");
+                yield break;
+            }
+
+            yield return null; // Wait one frame, then check again
+        }
+
+        // ── Full duration completed — mining succeeded ──
         gatherController?.StopMining();
         _isMining = false;
         _isDepleted = true;
 
         if (depletedVisuals != null) depletedVisuals.SetActive(true);
 
-        // Hand off to LootSource — opens loot window with existing loot
-        // (loot was already generated on first mine and persists until taken)
         if (_lootSource != null)
             _lootSource.Interact();
     }
 
-    private void HandleLootWindowClosed()
+    private void CancelMining(PlayerGatheringController gatherController, string reason)
     {
-        // If the window closed but loot remains (player closed without looting),
-        // reset depleted so they can mine again — fresh loot rolls on next mine
-        if (_isDepleted && _lootSource != null && _lootSource.HasLoot)
-        {
-            _isDepleted = false;
-            if (depletedVisuals != null) depletedVisuals.SetActive(false);
-            Debug.Log($"[MiningNode] Loot window closed without looting — ready to mine again.");
-        }
+        Debug.Log($"[MiningNode] Mining cancelled — {reason}.");
+        gatherController?.StopMining();
+        _isMining = false;
+        // _isDepleted stays false — node is still mineable
+        // depletedVisuals stay hidden — rock looks untouched
+        _miningCoroutine = null;
     }
 }
