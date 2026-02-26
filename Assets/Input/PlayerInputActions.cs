@@ -136,6 +136,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Cancel"",
+                    ""type"": ""Button"",
+                    ""id"": ""fa777d69-f9da-411e-a7aa-d32a435bc215"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -235,6 +244,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""RightClickInteract"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""36292f87-d94a-4634-b50f-0799558f5efc"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Cancel"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -426,6 +446,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_CameraPivot = m_Player.FindAction("CameraPivot", throwIfNotFound: true);
         m_Player_CameraPivotHeld = m_Player.FindAction("CameraPivotHeld", throwIfNotFound: true);
         m_Player_RightClickInteract = m_Player.FindAction("RightClickInteract", throwIfNotFound: true);
+        m_Player_Cancel = m_Player.FindAction("Cancel", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_ToggleInventory = m_UI.FindAction("ToggleInventory", throwIfNotFound: true);
@@ -518,6 +539,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_CameraPivot;
     private readonly InputAction m_Player_CameraPivotHeld;
     private readonly InputAction m_Player_RightClickInteract;
+    private readonly InputAction m_Player_Cancel;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -549,6 +571,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/RightClickInteract".
         /// </summary>
         public InputAction @RightClickInteract => m_Wrapper.m_Player_RightClickInteract;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Cancel".
+        /// </summary>
+        public InputAction @Cancel => m_Wrapper.m_Player_Cancel;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -590,6 +616,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @RightClickInteract.started += instance.OnRightClickInteract;
             @RightClickInteract.performed += instance.OnRightClickInteract;
             @RightClickInteract.canceled += instance.OnRightClickInteract;
+            @Cancel.started += instance.OnCancel;
+            @Cancel.performed += instance.OnCancel;
+            @Cancel.canceled += instance.OnCancel;
         }
 
         /// <summary>
@@ -616,6 +645,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @RightClickInteract.started -= instance.OnRightClickInteract;
             @RightClickInteract.performed -= instance.OnRightClickInteract;
             @RightClickInteract.canceled -= instance.OnRightClickInteract;
+            @Cancel.started -= instance.OnCancel;
+            @Cancel.performed -= instance.OnCancel;
+            @Cancel.canceled -= instance.OnCancel;
         }
 
         /// <summary>
@@ -820,6 +852,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnRightClickInteract(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Cancel" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCancel(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
